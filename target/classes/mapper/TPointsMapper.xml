@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ccbjb.common.mapper.TPointsMapper" >
+  <resultMap id="BaseResultMap" type="com.ccbjb.common.domain.TPoints">
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="detail" property="detail" jdbcType="BLOB" />
+  </resultMap>
+  <resultMap id="findAllPointsResultMap" type="TPoints" extends="BaseResultMap">
+    <collection property="items" javaType="com.ccbjb.common.domain.TPoints">
+      <id column="iid" property="id" jdbcType="BIGINT" />
+      <result column="ititle" property="title" jdbcType="VARCHAR" />
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, parent_id, title,detail
+  </sql>
+  <sql id="where_all">
+    <where>
+      <if test="findContent != null and findContent !='' " >
+        and (
+        LOWER(p.title) like  LOWER(CONCAT("%",#{findContent,jdbcType=VARCHAR},"%"))
+        )
+      </if>
+    </where>
+  </sql>
+  <select id="findAllPoints" resultMap="findAllPointsResultMap" >
+    select
+      p.id,p.title,i.id iid,i.title ititle
+    from t_points p
+    left join t_points i
+              on p.id = i.parent_id
+    <where>
+      p.parent_id IS NULL
+      <if test="findContent != null and findContent !='' " >
+        and (
+        LOWER(p.title) like  LOWER(CONCAT("%",#{findContent,jdbcType=VARCHAR},"%"))
+        )
+      </if>
+    </where>
+  </select>
+  <select id="findPointById" resultMap="BaseResultMap" >
+    select
+    <include refid="Base_Column_List" />
+    from t_points where id = #{id}
+  </select>
+</mapper>

@@ -1,0 +1,5 @@
+server:
+  port: 3339
+  context-path: /
+logging:
+  config: classpath:logback.xml
